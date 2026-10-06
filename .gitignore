@@ -6,3 +6,7 @@ __pycache__/
 *.py[cod]
 *.crdownload
 pose_focus_demo/pose_demo.sqlite3*
+panda_repro/artifacts/verification/
+pose_focus_demo/robot_from_overlay.mp4
+pose_focus_demo/poster_from_overlay.jpg
+pose_focus_demo/pose_recording_from_overlay.json

@@ -1,4 +1,4 @@
-"""Extract visible 2D landmarks from the EXISTING cyan pose overlay in the source clip.
+"""Diagnostic extraction of visible cyan markers from the rendered clip.
 
 This is image analysis of a pre-annotated video, not a new HoRoPose inference.
 """
@@ -12,7 +12,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent
 ROOT.mkdir(exist_ok=True)
-SOURCE = Path(os.environ.get("DENSO_SOURCE_VIDEO", str(ROOT.parent / "panda_horopose_health_demo.mp4.crdownload")))
+SOURCE = Path(os.environ.get("DENSO_SOURCE_VIDEO", str(ROOT.parent / "panda_repro" / "artifacts" / "panda_horopose_health_demo.mp4")))
 NAMES = ["L0 / đế", "L2 / vai", "L3 / khuỷu dưới", "L4 / khuỷu trên", "L6 / cẳng tay", "L7 / cổ tay", "EE / bộ kẹp"]
 SEED_FRAME = 150
 SEEDS = np.array([[540,639],[545,461],[664,334],[644,300],[472,192],[442,142],[383,183]],dtype=float)
@@ -102,8 +102,9 @@ def main():
     tracked=track(frames,candidates)
     # Preserve original footage and its existing cyan annotations. Cropping removes
     # only the synthetic sensor dashboard at the right of the source file.
-    subprocess.run(["ffmpeg","-y","-loglevel","error","-i",str(SOURCE),"-vf",f"crop={CROP_W}:{CROP_H}:{CROP_X}:{CROP_Y}","-an","-c:v","libx264","-crf","18","-preset","fast","-pix_fmt","yuv420p",str(ROOT/"robot_original.mp4")],check=True)
-    subprocess.run(["ffmpeg","-y","-loglevel","error","-ss","5","-i",str(ROOT/"robot_original.mp4"),"-frames:v","1",str(ROOT/"poster.jpg")],check=True)
+    diagnostic_video=ROOT/"robot_from_overlay.mp4"
+    subprocess.run(["ffmpeg","-y","-loglevel","error","-i",str(SOURCE),"-vf",f"crop={CROP_W}:{CROP_H}:{CROP_X}:{CROP_Y}","-an","-c:v","libx264","-crf","18","-preset","fast","-pix_fmt","yuv420p",str(diagnostic_video)],check=True)
+    subprocess.run(["ffmpeg","-y","-loglevel","error","-ss","5","-i",str(diagnostic_video),"-frames:v","1",str(ROOT/"poster_from_overlay.jpg")],check=True)
     records=[]
     for i,row in enumerate(tracked):
         points=[]
@@ -111,12 +112,12 @@ def main():
             points.append(None if p is None else [round(p[0]-CROP_X,1),round(p[1]-CROP_Y,1)])
         coverage=sum(p is not None for p in points)
         records.append({"t":round(i/fps,4),"points":points,"coverage":coverage})
-    payload={"source":"Pre-annotated Franka Panda clip found in workspace; external origin unverified",
+    payload={"source":"Cropped Panda HoRoPose repro video; 2D points extracted from rendered cyan overlay",
              "fps":fps,"duration_s":round(len(frames)/fps,4),"frame_count":len(frames),
              "width":CROP_W,"height":CROP_H,"landmarks":NAMES,
              "method":"Color segmentation + contour-hole detection + temporal nearest-neighbor tracking of the cyan pose markers already burned into the source video. Not independent HoRoPose inference.",
              "frames":records}
-    (ROOT/"pose_recording.json").write_text(json.dumps(payload,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
+    (ROOT/"pose_recording_from_overlay.json").write_text(json.dumps(payload,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
     print("frames",len(frames),"duration",len(frames)/fps,"coverage_mean",round(sum(x["coverage"] for x in records)/len(records),2))
     for t in (0,3,5,9,12,15):
         q=records[min(len(records)-1,int(t*fps))]

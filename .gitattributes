@@ -7,3 +7,6 @@
 *.txt text eol=lf
 *.mp4 binary
 *.jpg binary
+panda_repro/checkpoints/*.pk filter=lfs diff=lfs merge=lfs -text
+panda_repro/artifacts/*.joblib filter=lfs diff=lfs merge=lfs -text
+panda_repro/artifacts/*.mp4 filter=lfs diff=lfs merge=lfs -text

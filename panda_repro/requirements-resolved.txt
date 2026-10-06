@@ -1,0 +1,14 @@
+# Exact environment used for the real-robot video build on 2026-09-12.
+python==3.12.14
+numpy==2.3.5
+scipy==1.17.0
+scikit-learn==1.8.0
+joblib==1.5.3
+Pillow==12.3.0
+opencv-python-headless==5.0.0
+matplotlib==3.10.8
+torch==2.14.0+cu130
+torchvision==0.29.0
+einops==0.8.2
+imageio==2.37.4
+imageio-ffmpeg==0.6.0

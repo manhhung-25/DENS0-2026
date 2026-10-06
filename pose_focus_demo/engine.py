@@ -1,7 +1,7 @@
-"""A real, image-derived 2D pose stream and clearly synthetic condition signals.
+"""Precomputed HoRoPose Panda predictions aligned to the rendered 500-frame clip.
 
-The source clip already contains cyan pose annotations. No joint encoders, physical
-sensors, robot commands, raw unannotated video, or HoRoPose weights are available.
+The RGB dataset, checkpoint, model adapter, and saved predictions are in
+``panda_repro``. No live controller, physical sensors, or fault labels exist.
 """
 import json
 import math
@@ -96,8 +96,8 @@ def make_pose_series():
             if len(distances) >= 4:
                 candidates.append(median(distances))
         deviation = min(candidates) if candidates else None
-        rows.append({"t": frame["t"], "coverage": frame["coverage"], "points": points,
-                     "speed_px_s": speeds, "reference_distance_px": round(deviation, 1) if deviation is not None else None})
+        rows.append({**frame, "speed_px_s": speeds,
+                     "reference_distance_px": round(deviation, 1) if deviation is not None else None})
     still = [0.0] * 7
     for i, row in enumerate(rows):
         durations = []

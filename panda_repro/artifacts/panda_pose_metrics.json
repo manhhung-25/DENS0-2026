@@ -1,0 +1,23 @@
+{
+  "frames": 120,
+  "checkpoint_epoch": 76,
+  "checkpoint_auc_add": 0.7522146870794079,
+  "checkpoint_sha256": "8611ff23183d1ada861627f728b19f3318f755a95c6d7d75a0944b5dd5b8614c",
+  "strict_state_dict_load": true,
+  "model_state_tensors": 2308,
+  "joint_mae_deg_raw": 12.65900993347168,
+  "joint_mae_deg_temporal": 12.514655113220215,
+  "normal_reference_calibration_frames": 30,
+  "joint_mae_deg_calibrated": 5.537922382354736,
+  "joint_mae_deg_per_joint_calibrated": [
+    3.9605891704559326,
+    1.7216110229492188,
+    1.8188282251358032,
+    2.8614726066589355,
+    3.981053590774536,
+    5.326019763946533,
+    19.095890045166016
+  ],
+  "keypoint_error_px_raw": 7.5785990446446245,
+  "keypoint_error_px_temporal": 7.553231514592012
+}

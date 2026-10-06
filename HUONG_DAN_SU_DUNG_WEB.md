@@ -1,6 +1,6 @@
 # Hướng dẫn sử dụng web — Franka Pose Observatory
 
-Tài liệu này dành cho người trình diễn demo, người xem dashboard và kỹ thuật viên thử quy trình xác nhận cảnh báo. Web phát lại **16,67 giây clip Franka Panda đã có chú giải cyan** ở 30 khung hình/giây. Dự án đọc pose 2D từ chú giải trên ảnh; nguồn xuất bản clip chưa được xác minh. Cảm biến, quỹ đạo lỗi và cảnh báo là mô phỏng ngoại tuyến. Không có kết nối đến robot hoặc cảm biến nhà máy. Xem [ghi chép nguồn gốc video](VIDEO_PROVENANCE.md).
+Tài liệu này dành cho người trình diễn demo, người xem dashboard và kỹ thuật viên thử quy trình xác nhận cảnh báo. Web phát lại **16,67 giây clip Franka Panda** ở 30 khung hình/giây. Mã, checkpoint, ảnh RGB DREAM và dự đoán HoRoPose nằm trong `panda_repro/`; dashboard đọc trực tiếp keypoint và q1–q7 đã suy luận từ NPZ theo đúng frame video. Cảm biến và cảnh báo là mô phỏng ngoại tuyến. Không có kết nối đến robot hoặc cảm biến nhà máy. Xem [ghi chép nguồn gốc video](VIDEO_PROVENANCE.md).
 
 ## 1. Mở ứng dụng
 
@@ -14,10 +14,10 @@ Trong mục **Camera & Pose**:
 
 - Bấm **▶ / Ⅱ** để phát hoặc tạm dừng. Kéo thanh tua để chọn thời điểm; chọn `0.5×`, `1×`, `1.5×` hoặc `2×` để đổi tốc độ phát.
 - Đồng hồ **THỜI ĐIỂM VIDEO** cho biết giây và số frame đang xem. Video là đồng hồ chung: giá trị tức thời, vạch trên biểu đồ, pose và quỹ đạo giả lập cùng đổi theo frame đó.
-- Dòng **x / 7 MỐC** cho biết số mốc pose nhìn thấy ở frame hiện tại. Mốc bị che khuất hoặc ra ngoài hình hiện **KHUẤT**; hệ thống không tự điền tọa độ giả.
-- Trong **Cấu trúc cánh tay**, bấm `L0`, `L2`, `L3`, `L4`, `L6`, `L7` hoặc `EE` để chọn vùng theo dõi. Các số này là **tên mốc ảnh 2D**, không phải góc khớp thật hay đủ bảy góc encoder của Franka.
+- Dòng **x / 7 MỐC** cho biết số keypoint dự đoán nằm trong vùng video ở frame hiện tại. Mốc nằm ngoài vùng hình hiện **KHUẤT**.
+- Trong **Cấu trúc cánh tay**, bấm `L0`, `L2`, `L3`, `L4`, `L6`, `L7` hoặc `EE` để chọn vùng theo dõi. Đây là tên keypoint; biểu đồ **q1–q7** là góc khớp AI dự đoán, không phải góc encoder Franka.
 
-Khung **Tại khung hình hiện tại** cho tọa độ ảnh `X/Y` (pixel), tốc độ dịch chuyển mốc trong ảnh (`px/s`), độ phủ pose và khoảng cách với đoạn mẫu 3–7 giây của cùng clip. Giá trị tốc độ ảnh không phải tốc độ quay động cơ. Khung **Trạng thái mô phỏng** cho biết tham số lỗi và nhiệt tích lũy *được mô phỏng* tại thời điểm đó.
+Khung **Tại khung hình hiện tại** cho tọa độ ảnh `X/Y`, góc khớp AI của mốc chọn, độ phủ và mã ảnh DREAM/chu kỳ. Chọn biểu đồ tốc độ để xem dịch chuyển ảnh `px/s`; giá trị này không phải tốc độ quay động cơ. Khung **Trạng thái mô phỏng** cho biết tham số lỗi và nhiệt tích lũy giả định.
 
 ## 3. Đọc các biểu đồ đồng bộ
 
@@ -25,12 +25,13 @@ Chọn một mốc trước khi đọc biểu đồ. Hầu hết biểu đồ th
 
 | Nhóm | Biểu đồ | Cách đọc |
 |---|---|---|
-| Quan sát từ video | Quỹ đạo mốc, tốc độ 2D, khác biệt tư thế, độ phủ mốc, thời gian ít dịch chuyển | Cho biết hình ảnh và pose 2D trong clip. Khác biệt với đoạn mẫu hoặc đứng yên không tự chứng minh robot hỏng. |
-| Cảm biến giả lập | Rung RMS, nhiệt độ, âm thanh | Đường tín hiệu được sinh theo kịch bản; đường nền là trạng thái bình thường *giả lập*. Không có cảm biến đo thật. |
+| AI từ ảnh DREAM | Quỹ đạo mốc, tốc độ 2D, khác biệt tư thế, độ phủ, góc khớp q và sai số keypoint | q và keypoint từ checkpoint HoRoPose đã chạy; đường nhãn DREAM dùng đối chiếu. Không có encoder thật. |
+| Mô phỏng trong video nguồn | Rung, âm, nhiệt, dòng điện J4 | Giá trị CSV khớp đúng số đã vẽ vào video theo từng frame; không phải phép đo thật. |
+| Cảm biến what-if giả lập | Rung RMS, nhiệt độ, âm thanh | Tạo theo kịch bản web; đường nền là trạng thái bình thường *giả lập*. Có thể khác số mô phỏng đã in trong video nguồn. |
 | Tác động giả lập | Chênh pose dự kiến, trễ chuyển động | Mô tả tình huống “nếu lỗi xảy ra” so với pose quan sát. Không phải sai lệch thật đã đo. |
 | Phát hiện | Điểm bất thường, vùng cảnh báo | Điểm và vùng tô được tính từ tín hiệu mô phỏng cho mốc đang chọn; `0–100` là thang minh họa, không phải xác suất hỏng. |
 
-Trên biểu đồ quỹ đạo, đường pose từ video thể hiện quan sát; đường đứt thể hiện quỹ đạo giả lập. Khi đổi mốc hoặc tua video, đọc lại tọa độ và chú giải để tránh nhầm hai nguồn dữ liệu.
+Trên biểu đồ quỹ đạo, đường xanh là pose HoRoPose từ ảnh nguồn; đường đứt là quỹ đạo what-if. Khi đổi mốc hoặc tua video, các biểu đồ AI và cảm biến trong video nguồn cùng nhảy tới bản ghi có cùng timestamp.
 
 ## 4. Tạo và so sánh ca lỗi trong phòng mô phỏng
 
@@ -43,7 +44,7 @@ Mở **Mô phỏng** và làm theo thứ tự:
 
 Danh sách ngay dưới các nút cho biết lỗi, mốc và khoảng thời gian đã thêm; bấm dấu **×** của một mục để bỏ riêng kịch bản đó. **Xóa lỗi** tạo ca nền giả lập không tiêm lỗi. **Về kịch bản mẫu** tạo lại hai lỗi minh họa: ổ bi/truyền động và độ rơ/sai tư thế. Đổi seed hoặc tải sau khi nhập sẽ tạo ca mới với cùng danh sách lỗi.
 
-Tất cả thao tác này chỉ biến đổi **bản ghi số**; video và pose quan sát giữ nguyên. Nút **Giải thích chi tiết cách sinh và phát hiện lỗi** trong giao diện mô tả quy tắc của từng loại lỗi. Lỗi quá nhẹ, diễn ra khi mốc ít chuyển động hoặc chất lượng pose thấp có thể không tạo cảnh báo.
+Tất cả thao tác này chỉ biến đổi **bản ghi what-if**; video, dự đoán HoRoPose và cảm biến đã vẽ trong video nguồn giữ nguyên. Nút **Giải thích chi tiết cách sinh và phát hiện lỗi** mô tả quy tắc của từng loại lỗi. Lỗi quá nhẹ hoặc diễn ra khi mốc ít chuyển động có thể không tạo cảnh báo.
 
 ## 5. Xem cảnh báo và ghi kết luận bảo trì
 
@@ -60,7 +61,7 @@ Phản hồi được lưu trong SQLite theo **ca chạy + cảnh báo**. Khi t�
 
 ## 6. Tải dữ liệu
 
-- **Xuất CSV** ở góc trên tải timeline của **ca đang xem**, gồm cả mốc quan sát và tín hiệu giả lập. Tên cột có hậu tố `observed`, `sim` hoặc `synthetic` để phân biệt nguồn.
+- **Xuất CSV** ở góc trên tải timeline của **ca đang xem**, gồm mã ảnh nguồn, chu kỳ, góc q AI, nhãn DREAM đối chiếu, các kênh mô phỏng đã in trong video và kênh what-if. Tên cột phân biệt `pred`, `reference` và `sim`.
 - **Tải 20 ca mô phỏng** tải ZIP chứa 20 CSV và `manifest.json`. Các ca khác nhau về seed, tải, loại lỗi và cường độ; có cả ca nền. Tệp này dùng để thử luồng phần mềm ngoại tuyến, không phải tập lỗi thật và không dùng để báo cáo độ chính xác tại nhà máy.
 
 ## 7. Quy trình trình diễn trong 3 phút

@@ -61,7 +61,7 @@ function lineChart(id,series,options={}){
   const values=series.flatMap(s=>s.values.filter(v=>v!==null&&Number.isFinite(v)));
   let min=options.min??Math.min(...values),max=options.max??Math.max(...values);
   if(!Number.isFinite(min)){min=0;max=1}if(max<=min)max=min+1;
-  const gap=(max-min)*.12;min=options.min??Math.max(0,min-gap);max=options.max??max+gap;
+  const gap=(max-min)*.12;min=options.min??(min-gap);max=options.max??max+gap;
   if(options.alerts){for(const incident of options.alerts){const x1=p.l+W*incident.start_s/run.duration_s,x2=p.l+W*incident.end_s/run.duration_s;ctx.fillStyle='#226a4420';ctx.fillRect(x1,p.t,Math.max(2,x2-x1),H);ctx.fillStyle=color.alert;ctx.fillRect(x1,p.t,2,6)}}
   ctx.strokeStyle='#dce4db';ctx.lineWidth=1;ctx.font='12px "Times New Roman", serif';ctx.fillStyle='#536358';
   for(let k=0;k<3;k++){const y=p.t+H*k/2;ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(w-p.r,y);ctx.stroke();ctx.fillText((max-(max-min)*k/2).toFixed(max>100?0:1),2,y+3)}
@@ -87,6 +87,11 @@ function drawCharts(){
   lineChart('distanceChart',[{values:col(r=>r.reference_distance_px),color:color.real}],{min:0});
   lineChart('coverageChart',[{values:col(r=>r.coverage),color:color.real}],{min:0,max:7});
   lineChart('stillChart',[{values:col(r=>r.still_duration_s[j]),color:color.real}],{min:0});
+  lineChart('jointChart',[{values:col(r=>r.q_reference_deg[j]),color:color.base,dash:true},{values:col(r=>r.q_deg[j]),color:color.real}]);
+  lineChart('kpErrorChart',[{values:col(r=>r.keypoint_error_px),color:color.real}],{min:0});
+  for(const [id,key] of [['sourceVibrationChart','vibration_mm_s'],['sourceSoundChart','sound_dba'],['sourceTemperatureChart','temperature_c'],['sourceCurrentChart','motor_current_a']]){
+    lineChart(id,[{values:col(r=>r.source_sim[key]),color:color.sim}]);
+  }
   for(const [id,key] of [['vibrationChart','vibration'],['temperatureChart','temperature'],['soundChart','sound']]){
     lineChart(id,[{values:col(r=>r.signals[j].baseline[key]),color:color.base,dash:true},{values:col(r=>r.signals[j][key]),color:color.sim}]);
   }
@@ -107,11 +112,14 @@ function tick(force=false){
   $('#timeBig').textContent=fmt(video.currentTime||0);$('#frameBig').textContent=`frame ${String(i).padStart(3,'0')} / ${run.timeline.length-1}`;
   $('#playBtn').textContent=video.paused?'▶':'Ⅱ';$('#visibleBadge').textContent=`${row.coverage} / 7 MỐC`;updateLandmarks(row);
   $('#selectedName').textContent=run.landmarks[selected];$('#xyValue').textContent=point?`${point[0].toFixed(0)} / ${point[1].toFixed(0)}`:'Bị che khuất';
-  $('#speedValue').textContent=row.speed_px_s[selected]===null?'—':`${row.speed_px_s[selected].toFixed(1)} px/s`;
-  $('#coverageValue').textContent=`${row.coverage} / 7`;$('#distanceValue').textContent=row.reference_distance_px===null?'—':`${row.reference_distance_px.toFixed(1)} px`;
+  $('#jointValue').textContent=`${row.q_deg[selected].toFixed(1)}°`;
+  $('#coverageValue').textContent=`${row.coverage} / 7`;$('#sourceValue').textContent=`${row.source_frame} / ${row.cycle}`;
   const show=(id,value,unit,digits=1)=>{const el=$(`#${id}`);if(el)el.textContent=value===null||value===undefined?'—':`${Number(value).toFixed(digits)} ${unit}`};
   show('speedNow',row.speed_px_s[selected],'px/s');show('distanceNow',row.reference_distance_px,'px');
   $('#coverageNow').textContent=`${row.coverage} / 7`;show('stillNow',row.still_duration_s[selected],'s');
+  show('jointNow',row.q_deg[selected],'°');show('kpErrorNow',row.keypoint_error_px,'px');
+  show('sourceVibrationNow',row.source_sim.vibration_mm_s,'mm/s');show('sourceSoundNow',row.source_sim.sound_dba,'dBA');
+  show('sourceTemperatureNow',row.source_sim.temperature_c,'°C');show('sourceCurrentNow',row.source_sim.motor_current_a,'A',2);
   show('vibrationNow',sig.vibration,'mm/s',2);show('temperatureNow',sig.temperature,'°C');show('soundNow',sig.sound,'dB');
   show('gapNow',sig.pose_gap_px,'px');show('delayNow',sig.cycle_delay_s,'s',2);show('scoreNow',sig.score,'/ 100',0);
   updateLatent(sig);drawOverlay(row);drawCharts();

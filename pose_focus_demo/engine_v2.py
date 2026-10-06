@@ -1,6 +1,6 @@
-"""Causal, offline what-if generator around the observed 2D pose timeline.
+"""Causal, offline what-if generator around checkpoint-derived pose predictions.
 
-The robot footage and its extracted 2D markers are immutable observations.
+The robot footage and its mapped HoRoPose predictions are immutable inputs.
 Every signal, latent fault state and orange what-if trajectory below is synthetic.
 This is a teaching model, not a calibrated Franka mechanical digital twin.
 """
@@ -306,8 +306,8 @@ def generate(injections, seed=0, load=1.0):
                        "backlash": "projected 2D downstream rotation with reversal cue",
                        "slow": "time-lagged projected trajectory",
                        "detector": "residual and cross-channel rules, at least 3 consecutive frames"},
-            "provenance": {"video": "Recorded Franka Panda footage, 16.67 s, 500 frames",
-                           "pose": "Observed 2D marker coordinates extracted from pre-annotated video; no new HoRoPose inference",
+            "provenance": {"video": "DREAM Franka Panda RGB images rendered into 500 frames; 120 unique source frames",
+                           "pose": "HoRoPose checkpoint inference saved over 120 DREAM RGB frames, mapped to video by source_frame; q calibrated with 30 GT frames",
                            "twin_points": "Synthetic projected what-if positions, not measurements",
-                           "signals": "All vibration, temperature, sound, delay and fault state are synthetic",
+                           "signals": "Video package source_sim and dashboard what-if vibration, temperature, sound, delay and fault state are synthetic",
                            "validation": "Not calibrated to a physical robot; no real fault labels"}}

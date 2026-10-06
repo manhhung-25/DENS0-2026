@@ -1,0 +1,33 @@
+{
+  "video": "artifacts/panda_horopose_health_demo.mp4",
+  "frames": 500,
+  "fps": 30.0,
+  "duration_s": 16.666666666666668,
+  "robot": "Franka Emika Panda",
+  "real_rgb_source": "DREAM panda-3cam_realsense",
+  "pose_backend": "HoRoPose ECCV 2024 public panda_realsense checkpoint",
+  "checkpoint_epoch": 76,
+  "strict_state_dict_load": true,
+  "keypoint_error_px_temporal": 7.553231514592012,
+  "joint_mae_deg_calibrated": 5.537922382354736,
+  "baseline_cycle_s": 7.933333333333334,
+  "injected_delayed_cycle_s": 8.733333333333333,
+  "diagnosis": "gearbox_backlash",
+  "predicted_joint": 4,
+  "diagnosis_confidence": 0.9615384615384615,
+  "event_id": 10,
+  "real_vs_simulated": {
+    "real": [
+      "RGB Panda frames",
+      "checkpoint q/6D pose/keypoints"
+    ],
+    "simulated": [
+      "cycle hold/delay",
+      "vibration",
+      "sound",
+      "temperature",
+      "motor current",
+      "fault label"
+    ]
+  }
+}

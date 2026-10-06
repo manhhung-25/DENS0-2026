@@ -1,0 +1,49 @@
+{
+  "samples": 6000,
+  "fault_accuracy": 1.0,
+  "joint_accuracy": 1.0,
+  "labels": [
+    "normal",
+    "bearing_fault",
+    "gearbox_backlash",
+    "motor_overload",
+    "encoder_error"
+  ],
+  "confusion_matrix": [
+    [
+      265,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      257,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      275,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      267,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      256
+    ]
+  ]
+}

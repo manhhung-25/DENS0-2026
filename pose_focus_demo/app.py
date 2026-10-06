@@ -154,18 +154,20 @@ def feedback(run_id: str, incident_id: str, payload: FeedbackInput):
 def csv_bytes(data):
     out = io.StringIO()
     writer = csv.writer(out)
-    writer.writerow(["t_s", "landmark", "pose_x_px_observed", "pose_y_px_observed",
+    writer.writerow(["t_s", "landmark", "source_frame", "cycle", "q_pred_deg", "q_reference_deg", "keypoint_error_px", "pose_x_px_pred", "pose_y_px_pred",
                      "twin_x_px_synthetic", "twin_y_px_synthetic", "speed_px_s_observed",
                      "still_duration_s_observed", "reference_distance_px_observed", "coverage_observed",
                      "vibration_baseline_sim_mm_s", "vibration_sim_mm_s",
                      "temperature_baseline_sim_c", "temperature_sim_c",
                      "sound_baseline_sim_db", "sound_sim_db", "pose_gap_sim_px",
-                     "cycle_delay_sim_s", "score_sim", "fault_truth_sim", "pose_source", "sensor_source"])
+                     "cycle_delay_sim_s", "score_sim", "fault_truth_sim", "pose_source", "sensor_source",
+                     "video_vibration_sim_mm_s", "video_sound_sim_dba", "video_temperature_sim_c",
+                     "video_motor_current_sim_a", "video_fault_blend_sim"])
     for row in data["timeline"]:
         for j, sig in enumerate(row["signals"]):
             p = row["points"][j]
             twin = row["twin_points"][j]
-            writer.writerow([row["t"], data["landmarks"][j], p[0] if p else "", p[1] if p else "",
+            writer.writerow([row["t"], data["landmarks"][j], row["source_frame"], row["cycle"], row["q_deg"][j], row["q_reference_deg"][j], row["keypoint_error_px"], p[0] if p else "", p[1] if p else "",
                              twin[0] if twin else "", twin[1] if twin else "",
                              row["speed_px_s"][j] if row["speed_px_s"][j] is not None else "",
                              row["still_duration_s"][j] if row["still_duration_s"][j] is not None else "",
@@ -174,7 +176,10 @@ def csv_bytes(data):
                              sig["baseline"]["temperature"], sig["temperature"],
                              sig["baseline"]["sound"], sig["sound"], sig["pose_gap_px"],
                              sig["cycle_delay_s"], sig["score"], "|".join(sig["truth"]),
-                             "image_extracted_from_annotated_video", "synthetic"])
+                             "saved_horopose_checkpoint_inference", "synthetic",
+                             row["source_sim"]["vibration_mm_s"], row["source_sim"]["sound_dba"],
+                             row["source_sim"]["temperature_c"], row["source_sim"]["motor_current_a"],
+                             row["source_sim"]["fault_blend"]])
     return out.getvalue().encode("utf-8-sig")
 
 
@@ -190,8 +195,8 @@ def ensemble(count: int = 20, seed: int = 41):
         raise HTTPException(422, "Số ca 1–40; seed 0–1.000.000")
     rng = random.Random(seed)
     manifest = {"purpose": "Offline synthetic stress testing only",
-                "warning": "Only observed 2D marker coordinates come from video; all faults, what-if pose and sensors are synthetic. Do not report simulation performance as field accuracy.",
-                "source_video": "16.67 s pre-annotated workspace clip (external origin unverified), repeated reference across cases",
+                "warning": "Pose and q are saved HoRoPose inference on DREAM RGB, mapped to repeated video frames. All faults, what-if pose and sensors are synthetic. Do not report simulation performance as field accuracy.",
+                "source_video": "16.67 s rendered Panda HoRoPose repro clip, repeated reference across cases",
                 "engine": "causal what-if v2", "cases": []}
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
