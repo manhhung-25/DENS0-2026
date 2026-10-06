@@ -1,0 +1,13 @@
+.causal-card{border-color:#5a4a32;background:linear-gradient(135deg,#202522,#152127)}
+.causal-card .panel-head .eyebrow{color:var(--amber)}
+.latent-readout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:0 18px 15px}
+.latent-pill{min-width:0;min-height:62px;border:1px solid #43504a;border-radius:6px;background:#172521;padding:10px 12px}
+.latent-pill span{display:block;color:#a7aaa1;font:9px var(--mono);letter-spacing:.06em;line-height:1.4}
+.latent-pill strong{display:block;color:var(--amber);font:600 14px 'Space Grotesk',sans-serif;margin-top:6px;overflow-wrap:anywhere}
+.causal-note{border-top:1px solid #43504a;padding:11px 19px 16px;color:#b7b9ab;font-size:11px;line-height:1.55}
+.lab-actions{flex-wrap:wrap}
+.download-btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.download-btn:hover{border-color:var(--amber);color:var(--amber)}
+.chart-card{min-width:0}
+.chart-card p{min-height:46px}
+@media(max-width:600px){.latent-readout{grid-template-columns:1fr}.top-actions .pill{white-space:normal}.chart-card p{min-height:0}}

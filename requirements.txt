@@ -1,0 +1,6 @@
+# Python 3.12; versions verified with the local demo.
+fastapi==0.141.1
+pydantic==2.13.4
+uvicorn==0.52.3
+numpy==2.5.2
+opencv-python==4.10.0.84

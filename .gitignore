@@ -1,0 +1,8 @@
+.venv/
+.env
+.env.*
+.vscode/
+__pycache__/
+*.py[cod]
+*.crdownload
+pose_focus_demo/pose_demo.sqlite3*

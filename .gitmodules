@@ -1,0 +1,3 @@
+[submodule "horopose_upstream"]
+	path = horopose_upstream
+	url = https://github.com/Oliverbansk/Holistic-Robot-Pose-Estimation.git
