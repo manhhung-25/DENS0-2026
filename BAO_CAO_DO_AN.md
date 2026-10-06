@@ -6,7 +6,7 @@
 **Phiên bản báo cáo:** 06/10/2026<br>
 **Mã nguồn và dữ liệu tái lập:** [DENS0-2026](https://github.com/manhhung-25/DENS0-2026)<br>
 **Sinh viên / nhóm thực hiện:** [Điền tên]<br>
-**Giảng viên hướng dẫn:** [Điền tên]
+**Giảng viên hướng dẫn:** [Điền tên]<br>
 **Đơn vị đào tạo:** [Điền tên]
 
 > Báo cáo mô tả đúng nguyên mẫu đã chạy và hướng triển khai tiếp theo. Các trang trong sườn mẫu chỉ là ví dụ; số trang cần được cập nhật sau khi dàn trang Word/PDF. Những mục 41/68 landmark, ESP32-S3 và nhận diện hành vi người trong sườn mẫu không thuộc đề tài robot này nên đã được thay bằng nội dung tương ứng.
@@ -336,7 +336,7 @@ Trên dữ liệu thật, gateway chuẩn hóa đơn vị và kiểm tra dải h
 | `friction` | `z_T ≥ 1,5`, `z_a ≥ 1,4`, trễ ≥ 0,1 s |
 | `bearing` | `z_v ≥ 5`, `z_a ≥ 2,3` |
 | `thermal` | `z_T ≥ 4` |
-| `sensor_drift` | `z_v ≥ 4`, `|z_a|<1,3`, `|z_T|<1,3` |
+| `sensor_drift` | `z_v ≥ 4`, `abs(z_a)<1,3`, `abs(z_T)<1,3` |
 
 Sự kiện phải tồn tại ít nhất ba frame; các khoảng mất phát hiện tối đa 12 frame được nối nếu cùng nhãn hai bên. Thứ tự luật có nghĩa: `slow` được xét trước các lớp khác, và có xử lý nhiệt còn lại sau một episode ma sát. Khi nhiều lỗi cùng xảy ra, bộ luật có thể gán một nhãn ưu tiên và bỏ qua nguyên nhân thứ hai. Trong pilot, nên thay bằng mô hình đa nhãn hoặc logic bất định, chỉ phát cảnh báo nếu chất lượng dữ liệu đạt mức tối thiểu, rồi hiệu chuẩn ngưỡng theo chi phí báo giả/bỏ sót.
 

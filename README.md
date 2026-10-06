@@ -6,6 +6,8 @@
 
 **Báo cáo đồ án:** [Thiết kế hệ thống giám sát tư thế robot và mô phỏng cảnh báo bảo trì đa cảm biến](BAO_CAO_DO_AN.md) trình bày cơ sở khoa học, kiến trúc, thông số, cơ chế sinh/phát hiện lỗi, kết quả kiểm chứng, giới hạn và hướng thí điểm.
 
+**File Word:** [BAO_CAO_DO_AN.docx](BAO_CAO_DO_AN.docx) có mục lục và số trang, bảng và hình minh họa; điền thông tin sinh viên/giảng viên trước khi nộp.
+
 ## Cấu trúc
 
 | Đường dẫn | Vai trò |
