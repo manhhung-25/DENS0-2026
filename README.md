@@ -1,6 +1,6 @@
 # DENSO — demo giám sát pose và tình trạng robot Franka Panda
 
-Đây là mã nguồn của demo ý tưởng. Video robot thật dài 16,67 giây và **pose 2D trên hình** là dữ liệu quan sát. Rung, nhiệt độ, âm thanh, độ trễ, quỹ đạo đối chứng và các sự cố đều là **dữ liệu mô phỏng**. Demo không kết nối hoặc điều khiển robot nhà máy.
+Đây là mã nguồn của demo ý tưởng. Clip 16,67 giây có hình cánh tay Franka Panda và các dấu pose cyan **đã được chèn sẵn**; dự án trích tọa độ 2D từ các dấu đó. Nguồn xuất bản của clip và cách tạo lớp chú thích **chưa được xác minh**. Rung, nhiệt độ, âm thanh, độ trễ, quỹ đạo đối chứng và các sự cố đều là **dữ liệu mô phỏng**. Demo không kết nối hoặc điều khiển robot nhà máy.
 
 ## Cấu trúc
 
@@ -32,12 +32,12 @@ Demo đã có đủ dữ liệu để chạy ngay sau khi lấy mã nguồn:
 
 | Tệp | Nội dung | Có cần tải thêm? |
 |---|---|---|
-| `pose_focus_demo/robot_original.mp4` | Clip Franka Panda thật đã cắt vùng hình, dài 16,67 giây, 30 fps | Không |
+| `pose_focus_demo/robot_original.mp4` | Bản cắt vùng robot từ clip có sẵn trong workspace, dài 16,67 giây, 30 fps; clip đã có lớp pose cyan | Không |
 | `pose_focus_demo/pose_recording.json` | 500 frame và tối đa 7 mốc pose 2D/frame trích từ **nét cyan đã chú giải sẵn trên clip** | Không |
 | `pose_focus_demo/poster.jpg` | Ảnh xem trước video | Không |
 | CSV hoặc ZIP tải từ web | Ca cảm biến và lỗi **được tạo giả lập khi yêu cầu** | Không; dùng các nút **Xuất CSV** và **Tải 20 ca mô phỏng** |
 
-Đây không phải dataset cảm biến/nhãn hỏng thật. Mốc `L0`…`EE` là tọa độ trong ảnh, không phải góc bảy khớp từ controller. Các giá trị rung, nhiệt, âm, độ trễ và cảnh báo là dữ liệu giả lập cùng trục thời gian với video. Không dùng bộ dữ liệu này để tuyên bố độ chính xác bảo trì tại nhà máy.
+Đây không phải dataset cảm biến/nhãn hỏng thật. Mốc `L0`…`EE` là tọa độ trong ảnh, không phải góc bảy khớp từ controller. Các giá trị rung, nhiệt, âm, độ trễ và cảnh báo là dữ liệu giả lập cùng trục thời gian với video. Không dùng bộ dữ liệu này để tuyên bố độ chính xác bảo trì tại nhà máy. Xem [ghi chép nguồn gốc video](VIDEO_PROVENANCE.md) để biết điều gì đã và chưa xác minh được.
 
 ### Nếu cần tạo lại dữ liệu pose từ clip nguồn
 
@@ -93,7 +93,7 @@ Nếu lệnh `python` không trỏ đến Python 3.12, thay bằng `py -3.12` kh
 | `pose_focus_demo/engine.py` | Đọc chuỗi pose quan sát và đặc trưng ảnh |
 | `pose_focus_demo/engine_v2.py` | Sinh tín hiệu giả lập, tiêm lỗi ngoại tuyến, phát hiện và tạo cảnh báo |
 | `pose_focus_demo/index_v3.html`, `styles_v4.css`, `app_v2.js` | Dashboard hiện hành; mọi biểu đồ và cảnh báo bám thời gian video |
-| `pose_focus_demo/pose_recording.json`, `robot_original.mp4`, `poster.jpg` | Pose 2D, video robot thật và ảnh poster đi kèm |
+| `pose_focus_demo/pose_recording.json`, `robot_original.mp4`, `poster.jpg` | Pose 2D trích từ chú giải, clip đã cắt và ảnh poster đi kèm |
 | `pose_focus_demo/prepare_pose.py` | Tiện ích tạo lại pose/video từ clip nguồn; cần FFmpeg trong PATH và clip nguồn phù hợp |
 | `pose_focus_demo/test_engine_v2.py` | Kiểm tra luồng sinh dữ liệu và phát hiện |
 

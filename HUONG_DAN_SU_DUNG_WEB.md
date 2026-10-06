@@ -1,6 +1,6 @@
 # Hướng dẫn sử dụng web — Franka Pose Observatory
 
-Tài liệu này dành cho người trình diễn demo, người xem dashboard và kỹ thuật viên thử quy trình xác nhận cảnh báo. Web phát lại **16,67 giây video robot Franka Panda thật** ở 30 khung hình/giây. Pose 2D trên ảnh là dữ liệu quan sát; cảm biến, quỹ đạo lỗi và cảnh báo là mô phỏng ngoại tuyến. Không có kết nối đến robot hoặc cảm biến nhà máy.
+Tài liệu này dành cho người trình diễn demo, người xem dashboard và kỹ thuật viên thử quy trình xác nhận cảnh báo. Web phát lại **16,67 giây clip Franka Panda đã có chú giải cyan** ở 30 khung hình/giây. Dự án đọc pose 2D từ chú giải trên ảnh; nguồn xuất bản clip chưa được xác minh. Cảm biến, quỹ đạo lỗi và cảnh báo là mô phỏng ngoại tuyến. Không có kết nối đến robot hoặc cảm biến nhà máy. Xem [ghi chép nguồn gốc video](VIDEO_PROVENANCE.md).
 
 ## 1. Mở ứng dụng
 

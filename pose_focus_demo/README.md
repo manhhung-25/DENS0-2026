@@ -13,13 +13,13 @@ Dashboard phát lại **16,67 giây video robot Franka Panda** ở 30 fps. Thờ
 
 | Dữ liệu | Nguồn | Cách diễn giải |
 |---|---|---|
-| Hình robot | Video ghi hình robot thật; clip gốc `D:\DENSO\panda_horopose_health_demo.mp4.crdownload` | Tệp `robot_original.mp4` được cắt vùng video, không có dữ liệu hỏng thật |
+| Hình robot | Tệp đầu vào tìm thấy trong workspace: `D:\DENSO\panda_horopose_health_demo.mp4.crdownload`; URL và tác giả gốc chưa xác minh | `robot_original.mp4` được cắt vùng từ tệp này; hình đã có chú giải pose cyan và bảng cảm biến mô phỏng |
 | Pose cyan | 7 mốc 2D trích từ **nét đã chú giải trên video** trong `pose_recording.json` | Mốc khuất để `null`; chưa chạy lại HoRoPose trên hình thô. `L0`…`EE` là mốc ảnh, không phải góc của bảy khớp |
 | Tốc độ, thời gian đứng yên, độ phủ, khoảng cách đoạn mẫu | Tính từ pose 2D ở trên | Đơn vị pixel và giây; không suy ra vị trí 3D hoặc encoder |
 | Rung, nhiệt, âm, độ trễ, trạng thái lỗi | **100% mô phỏng** | Sinh ở mỗi timestamp ảnh; đơn vị mm/s, °C, dB chỉ có ý nghĩa trong mô hình minh họa |
 | Quỹ đạo đối chứng | **100% mô phỏng** | Hình chiếu 2D “nếu lỗi xảy ra”, không phải phép đo robot; pose quan sát không bị sửa |
 
-Không có video thô chưa chú giải, hiệu chuẩn camera, checkpoint pose, log controller, cảm biến thật hoặc nhãn hỏng thật. Không được dùng độ chính xác trên dữ liệu do chính mô hình sinh để công bố hiệu quả bảo trì tại nhà máy.
+Không có video thô chưa chú giải, hiệu chuẩn camera, checkpoint pose, log controller, cảm biến thật hoặc nhãn hỏng thật. Dòng chữ “HoRoPose ECCV 2024 checkpoint” trong clip không xác minh được việc mô hình đã chạy cho clip này. Xem [ghi chép nguồn gốc video](../VIDEO_PROVENANCE.md). Không được dùng độ chính xác trên dữ liệu do chính mô hình sinh để công bố hiệu quả bảo trì tại nhà máy.
 
 ## Cơ chế sinh lỗi
 

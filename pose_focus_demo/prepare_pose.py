@@ -111,7 +111,7 @@ def main():
             points.append(None if p is None else [round(p[0]-CROP_X,1),round(p[1]-CROP_Y,1)])
         coverage=sum(p is not None for p in points)
         records.append({"t":round(i/fps,4),"points":points,"coverage":coverage})
-    payload={"source":"Original kitchen Franka Panda demonstration video supplied in workspace",
+    payload={"source":"Pre-annotated Franka Panda clip found in workspace; external origin unverified",
              "fps":fps,"duration_s":round(len(frames)/fps,4),"frame_count":len(frames),
              "width":CROP_W,"height":CROP_H,"landmarks":NAMES,
              "method":"Color segmentation + contour-hole detection + temporal nearest-neighbor tracking of the cyan pose markers already burned into the source video. Not independent HoRoPose inference.",

@@ -191,7 +191,7 @@ def ensemble(count: int = 20, seed: int = 41):
     rng = random.Random(seed)
     manifest = {"purpose": "Offline synthetic stress testing only",
                 "warning": "Only observed 2D marker coordinates come from video; all faults, what-if pose and sensors are synthetic. Do not report simulation performance as field accuracy.",
-                "source_video": "16.67 s recorded Franka Panda clip, repeated reference across cases",
+                "source_video": "16.67 s pre-annotated workspace clip (external origin unverified), repeated reference across cases",
                 "engine": "causal what-if v2", "cases": []}
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
