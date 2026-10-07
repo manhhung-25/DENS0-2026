@@ -110,6 +110,20 @@ def make_pose_series():
                 still[j] = 0.0
                 durations.append(None if not point else 0.0)
         row["still_duration_s"] = durations
+    # Derivatives of replayed predictions, not encoder rates. Backward differences
+    # and source-ID continuity prevent future frames / montage resets entering them.
+    for i,row in enumerate(rows):
+        row["replay_discontinuity"] = bool(i and (row["source_frame"]-rows[i-1]["source_frame"] < 0 or row["source_frame"]-rows[i-1]["source_frame"] > 3))
+        row["q_velocity_deg_s"] = [None]*7
+        row["q_acceleration_deg_s2"] = [None]*7
+        row["q_jerk_deg_s3"] = [None]*7
+        for order,key in ((1,"q_velocity_deg_s"),(2,"q_acceleration_deg_s2"),(3,"q_jerk_deg_s3")):
+            if i >= order and not any(rows[k]["replay_discontinuity"] for k in range(i-order+1,i+1)):
+                coeff = [(-1)**k*math.comb(order,k) for k in range(order+1)]
+                row[key]=[round(sum(coeff[k]*rows[i-k]["q_deg"][j] for k in range(order+1))*FPS**order,3) for j in range(7)]
+        row["pose_quality"] = row["coverage"]/7
+        row["phase"] = "không quan sát" if row["coverage"]<4 else "dừng trong bản phát lại" if max((v or 0 for v in row["speed_px_s"]),default=0)<5 else "chuyển động trong bản phát lại"
+        row["phase_elapsed_s"] = round((rows[i-1]["phase_elapsed_s"]+1/FPS) if i and row["phase"]==rows[i-1]["phase"] and not row["replay_discontinuity"] else 0.,3)
     return rows
 
 

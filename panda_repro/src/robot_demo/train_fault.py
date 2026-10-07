@@ -40,6 +40,9 @@ def train(output: Path, samples: int = 5000, seed: int = 19) -> dict:
     cause_pred = cause_model.predict(X_test)
     joint_pred = joint_model.predict(X_test)
     metrics = {
+        "scope": "synthetic historical six-DoF toy generator; not factory accuracy",
+        "evaluation_protocol": "random cycle split from the same generator; no external fault test",
+        "feature_schema": "derivatives_v2",
         "samples": samples,
         "fault_accuracy": float(accuracy_score(y_test, cause_pred)),
         "joint_accuracy": float(accuracy_score(j_test[y_test != "normal"], joint_pred[y_test != "normal"])),
@@ -48,6 +51,7 @@ def train(output: Path, samples: int = 5000, seed: int = 19) -> dict:
     }
     output.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump({
+        "feature_schema": "derivatives_v2",
         "cause_model": cause_model, "joint_model": joint_model,
         "feature_names": feature_names, "metrics": metrics,
     }, output)
@@ -66,4 +70,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

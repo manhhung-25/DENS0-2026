@@ -43,7 +43,7 @@ def run(artifacts: Path, fault: str = "gearbox_backlash", joint: int = 2) -> dic
 
     bundle = joblib.load(artifacts / "fault_model.joblib")
     cycle = simulate_cycle(fault, joint, seed=20260912)
-    x, names = extract_features(cycle)
+    x, names = extract_features(cycle,feature_schema=bundle.get("feature_schema","legacy_v1"))
     cause_model, joint_model = bundle["cause_model"], bundle["joint_model"]
     predicted_fault = str(cause_model.predict(x[None])[0])
     predicted_joint = int(joint_model.predict(x[None])[0])

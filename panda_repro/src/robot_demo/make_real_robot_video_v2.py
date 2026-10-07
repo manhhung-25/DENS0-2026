@@ -220,7 +220,7 @@ def create_demo(input_video: Path, artifacts: Path, output: Path,
     cycle_times, baseline_cycle = detected_cycle_times(tracks, fps)
 
     bundle = joblib.load(artifacts / "fault_model.joblib")
-    feature_vector, _ = extract_features(fault_cycle)
+    feature_vector, _ = extract_features(fault_cycle,feature_schema=bundle.get("feature_schema","legacy_v1"))
     predicted_fault = str(bundle["cause_model"].predict(feature_vector[None])[0])
     predicted_joint_zero = int(bundle["joint_model"].predict(feature_vector[None])[0])
     diagnosis_confidence = float(np.max(

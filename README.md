@@ -1,5 +1,17 @@
 # DENSO 2026 · Giám sát pose Franka Panda và mô phỏng bảo trì
 
+## Video thuyết minh ý tưởng và giới thiệu hệ thống
+
+[![Xem video thuyết minh ý tưởng DENSO A2](docs/media/thuyet_minh_y_tuong_preview.jpg)](https://github.com/manhhung-25/DENS0-2026/releases/download/demo-2026-10-08/thuyet_minh_y_tuong.mp4)
+
+**[Xem hoặc tải video thuyết minh đầy đủ](https://github.com/manhhung-25/DENS0-2026/releases/download/demo-2026-10-08/thuyet_minh_y_tuong.mp4)** · Thời lượng **17 phút 06 giây** · MP4, H.264/AAC, 1280 × 720 · Khoảng **754 MiB**.
+
+Nhấn ảnh xem trước hoặc liên kết trên để mở video; trình duyệt có thể tải file về, khi đó mở bằng trình phát video trên máy. Bản video gốc được lưu trong [GitHub Releases](https://github.com/manhhung-25/DENS0-2026/releases/tag/demo-2026-10-08), không nằm trong lịch sử Git của mã nguồn. Thông tin dung lượng và SHA-256 để đối chiếu nằm trong [manifest video](docs/media/thuyet_minh_y_tuong.json).
+
+Đây là phần thuyết minh của **demo vòng ý tưởng**: pose được suy luận từ ảnh robot thật; cảm biến, tình huống lỗi và benchmark trong hệ thống là mô phỏng, chưa phải kết quả triển khai tại nhà máy DENSO.
+
+**Cải tiến nghiên cứu v3:** [Hướng dẫn chạy bộ sinh bảy khớp, Isolation Forest, benchmark A/B/C và dashboard đánh giá](RESEARCH_GUIDE.md). Chạy `python -m research_pipeline benchmark --seeds 19,41,73 --output research_artifacts`, sau đó `python -m uvicorn app:app --app-dir pose_focus_demo --host 127.0.0.1 --port 8767`. Kết quả chỉ được kiểm chứng trên dữ liệu mô phỏng; các mốc pose trong video là dự đoán HoRoPose đã lưu. Phần **Đánh giá AI** hiển thị dữ liệu nghiên cứu có đồng hồ riêng; các biểu đồ giám sát tiếp tục dùng đồng hồ video.
+
 Đây là hệ thống trình diễn chạy **ngoại tuyến**. Ảnh RGB của robot Franka Panda, checkpoint HoRoPose, mã suy luận, dự đoán q1–q7/pose 6D/keypoint và mã dựng video nằm trong `panda_repro/`, được giải nén từ `Panda_HoRoPose_Full_Repro.zip`. Dashboard trong `pose_focus_demo/` phát lại video và dùng trực tiếp kết quả HoRoPose đã lưu; mọi giá trị cùng bám timestamp `frame / 30`.
 
 **Ranh giới dữ liệu:** ảnh RGB và nhãn đối chiếu thuộc tập DREAM; q1–q7 và keypoint là **dự đoán AI**, không phải encoder robot. Rung, âm thanh, nhiệt, dòng điện, trễ chu kỳ, sự cố và quỹ đạo what-if là **mô phỏng**. Chưa có camera hoặc cảm biến nối với robot nhà máy.
@@ -28,11 +40,13 @@ Thư mục `horopose_upstream/` là Git submodule tham khảo của công trình
 Yêu cầu Windows/Linux/macOS, Python 3.12, Git LFS và trình duyệt hỗ trợ H.264. Nếu lấy từ GitHub, tải cả trọng số và video LFS trước:
 
 ```powershell
-git clone https://github.com/manhhung-25/DENS0-2026.git
+git clone --recurse-submodules https://github.com/manhhung-25/DENS0-2026.git
 Set-Location DENS0-2026
 git lfs install
 git lfs pull
 ```
+
+Nếu đã clone trước đó, chạy `git submodule update --init --recursive` để lấy mã HoRoPose upstream. Các ca và trọng số benchmark nghiên cứu được tạo lại bằng lệnh trong [RESEARCH_GUIDE.md](RESEARCH_GUIDE.md); Git lưu mã nguồn và kết quả tổng hợp, không lưu môi trường `.venv`, cơ sở dữ liệu phản hồi cục bộ hoặc log chạy máy.
 
 Sau đó, trên PowerShell tại thư mục chứa README:
 
@@ -46,7 +60,7 @@ Set-Location pose_focus_demo
 
 Mở <http://127.0.0.1:8767/>. Nếu chỉ muốn phát lại bản đã đóng gói, không cần chạy `import_horopose.py` mỗi lần. Dashboard vẫn mở khi không cài PyTorch: nó dùng kết quả suy luận đã lưu. Phản hồi kỹ thuật viên nằm trong SQLite ở `%LOCALAPPDATA%\DENSO\pose_demo.sqlite3` trên Windows; có thể đổi nơi lưu bằng `DENSO_DEMO_DB`.
 
-Xem [hướng dẫn sử dụng web](HUONG_DAN_SU_DUNG_WEB.md) để phát video, chọn khớp, đọc biểu đồ, tạo ca mô phỏng và xác nhận cảnh báo.
+Xem [hướng dẫn sử dụng web từ A–Z](HUONG_DAN_SU_DUNG_WEB.md): 18 phần về cài đặt và lệnh chạy, mối liên hệ giữa các khu vực, chọn landmark/khớp độc lập, ý nghĩa từng biểu đồ, cơ chế sinh/phát hiện lỗi, bảo trì, log lịch sử, xuất dữ liệu, benchmark A/B/C, bài thực hành và xử lý sự cố.
 
 Các phiên bản đã chạy và lệnh kiểm tra chi tiết được ghi trong [môi trường đã xác minh](ENVIRONMENT_VERIFIED.md).
 

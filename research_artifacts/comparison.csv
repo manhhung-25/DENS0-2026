@@ -1,0 +1,16 @@
+﻿group,metric,mean,std,scope
+A_original,macro_f1,0.16744776338971046,0.031484331107724244,synthetic
+A_original,anomaly_pr_auc,0.6324847221934231,0.021021158359572845,synthetic
+A_original,event_recall,0.007936507936507936,0.013746434980705373,synthetic
+A_original,median_detection_delay_s,3.5003445837077862,0.0,synthetic
+A_original,false_alerts_per_hour,426.829268292683,66.00803382503342,synthetic
+B_simple,macro_f1,0.16875328902448392,0.00560183304398567,synthetic
+B_simple,anomaly_pr_auc,0.6053847971703381,0.04628653233051433,synthetic
+B_simple,event_recall,0.06349206349206349,0.036369648372665396,synthetic
+B_simple,median_detection_delay_s,1.0535394064978718,1.3185932088120467,synthetic
+B_simple,false_alerts_per_hour,464.93902439024396,47.59907010974387,synthetic
+C_physics,macro_f1,0.2791885529565787,0.0651419284218119,synthetic
+C_physics,anomaly_pr_auc,0.6826301083286018,0.01607897622235806,synthetic
+C_physics,event_recall,0.6587301587301587,0.1311326320782405,synthetic
+C_physics,median_detection_delay_s,0.6902340804539057,0.13759894511732373,synthetic
+C_physics,false_alerts_per_hour,426.829268292683,57.54446978102705,synthetic

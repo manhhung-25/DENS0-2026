@@ -87,7 +87,7 @@ def create(predictions:Path,output:Path,fault_model:Path,events:Path,fps=30.):
     z=np.load(predictions,allow_pickle=False); p={k:z[k] for k in z.files}; images=[cv2.imread(str(x)) for x in local_images(p,predictions)]
     if any(x is None for x in images): raise RuntimeError("Missing Panda RGB frame")
     idx,cyc,baseline,observed,start=timeline(len(images),fps); s=sensors(p["q_calibrated"][idx],start); err=np.linalg.norm(p["keypoints_2d_smooth"]-p["gt_keypoints_2d"],axis=2).mean(1)
-    b=joblib.load(fault_model); fc=simulate_cycle("gearbox_backlash",faulty_joint=3,steps=96,seed=0); feat,_=extract_features(fc); label=str(b["cause_model"].predict(feat[None])[0]); joint=int(b["joint_model"].predict(feat[None])[0]); conf=float(np.max(b["cause_model"].predict_proba(feat[None])[0]))
+    b=joblib.load(fault_model); fc=simulate_cycle("gearbox_backlash",faulty_joint=3,steps=96,seed=0); feat,_=extract_features(fc,feature_schema=b.get("feature_schema","legacy_v1")); label=str(b["cause_model"].predict(feat[None])[0]); joint=int(b["joint_model"].predict(feat[None])[0]); conf=float(np.max(b["cause_model"].predict_proba(feat[None])[0]))
     store=EventStore(events); eid=store.add_event("PANDA-REAL-RS-HOROPOSE","cycle-0002",observed,label,joint,conf,{"signals_are_simulated":True,"timing_anomaly_is_injected":True,"camera_pose_is_checkpoint_inference":True,"baseline_cycle_s":baseline,"observed_cycle_s":observed}); store.add_feedback(eid,"gearbox_backlash",3,"Demo technician confirmed J4 reducer backlash","confirmed")
     output.parent.mkdir(parents=True,exist_ok=True); avi=output.with_suffix(".source.avi"); writer=cv2.VideoWriter(str(avi),cv2.VideoWriter_fourcc(*"MJPG"),fps,(1280,720))
     for i,k in enumerate(idx):

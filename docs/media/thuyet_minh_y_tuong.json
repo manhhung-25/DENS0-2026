@@ -1,0 +1,16 @@
+{
+  "filename": "thuyet_minh_y_tuong.mp4",
+  "size_bytes": 790944883,
+  "sha256": "0e02877e1f0b16c5c9eb84a08d2fb26e809e88ae2a880c52ffff79078f3e29b3",
+  "duration_seconds": 1025.933333,
+  "width": 1280,
+  "height": 720,
+  "video_codec": "h264",
+  "audio_codec": "aac",
+  "release_tag": "demo-2026-10-08",
+  "release_id": 406028051,
+  "asset_id": 619414109,
+  "download_url": "https://github.com/manhhung-25/DENS0-2026/releases/download/demo-2026-10-08/thuyet_minh_y_tuong.mp4",
+  "source": "User-provided presentation video",
+  "scope": "Idea-stage demonstration; synthetic sensors, anomalies and research benchmark"
+}

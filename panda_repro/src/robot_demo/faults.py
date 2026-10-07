@@ -1,4 +1,8 @@
-"""Physics-guided synthetic robot cycles for multimodal fault diagnosis."""
+"""Historical six-DoF toy cycles; seven-joint research lives in research_pipeline.
+
+Legacy extraction is explicit for already packaged checkpoint compatibility.
+These parameters and signals are not calibrated Panda mechanical measurements.
+"""
 
 from __future__ import annotations
 
@@ -69,7 +73,7 @@ def simulate_cycle(label: str = "normal", faulty_joint: int | None = None,
     }
 
 
-def extract_features(cycle: dict) -> tuple[np.ndarray, list[str]]:
+def extract_features(cycle: dict, *, feature_schema="derivatives_v2") -> tuple[np.ndarray, list[str]]:
     values, names = [float(cycle["cycle_time"])], ["cycle_time"]
     for modality in ["vibration", "acoustic", "temperature", "current", "position_error"]:
         x = np.asarray(cycle[modality])
@@ -78,7 +82,17 @@ def extract_features(cycle: dict) -> tuple[np.ndarray, list[str]]:
             values.extend(result.tolist())
             names.extend([f"{modality}_{stat_name}_j{j + 1}" for j in range(6)])
     actual = np.asarray(cycle["actual"])
-    jerk = np.diff(actual, n=2, axis=0)
+    if feature_schema == "legacy_v1":
+        # Historical weights learned this second difference without a time unit.
+        # Retain it only when reading those weights; it is NOT physical jerk.
+        jerk = np.diff(actual, n=2, axis=0)
+        motion_name = "legacy_second_difference"
+    elif feature_schema == "derivatives_v2":
+        dt = float(cycle["cycle_time"]) / len(actual)
+        jerk = np.diff(actual, n=3, axis=0) / dt**3
+        motion_name = "pose_jerk_rad_s3"
+    else:
+        raise ValueError("Unknown feature schema")
     values.extend(np.max(np.abs(jerk), axis=0).tolist())
-    names.extend([f"pose_jerk_j{j + 1}" for j in range(6)])
+    names.extend([f"{motion_name}_j{j + 1}" for j in range(6)])
     return np.asarray(values, dtype=np.float32), names

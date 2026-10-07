@@ -147,8 +147,8 @@ def create_demo(input_video: Path, artifacts: Path, output: Path) -> dict:
 
     fault_cycle = simulate_cycle("gearbox_backlash", faulty_joint=2,
                                  steps=len(frames), seed=20260912)
-    feature_vector, _ = extract_features(fault_cycle)
     bundle = joblib.load(artifacts / "fault_model.joblib")
+    feature_vector, _ = extract_features(fault_cycle,feature_schema=bundle.get("feature_schema","legacy_v1"))
     predicted_fault = str(bundle["cause_model"].predict(feature_vector[None])[0])
     predicted_joint = int(bundle["joint_model"].predict(feature_vector[None])[0])
     confidence = float(np.max(bundle["cause_model"].predict_proba(feature_vector[None])[0]))

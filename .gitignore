@@ -14,3 +14,8 @@ bao_cao_assets/word_qa/
 bao_cao_assets/qa_*
 bao_cao_assets/bao_cao_qa.pdf
 ~$*.docx
+research_artifacts/seed_*/
+research_artifacts/*.tmp
+research_artifacts/*.zip
+research_artifacts/*timeseries.csv
+research_artifacts/*.log
