@@ -81,7 +81,8 @@ sequenceDiagram
     User->>Web: Mở sự kiện trong lịch sử
     Web->>API: GET /api/history/{event_id}
     API->>DB: Đọc dữ liệu trước–trong–sau
-    DB-->>Web: Qua API: pose, sensor, score và nhật ký
+    DB-->>API: Hồ sơ sự kiện đã lưu
+    API-->>Web: Pose, sensor, score và nhật ký
     User->>Web: Xác nhận và mô tả việc kiểm tra
     Web->>API: POST phản hồi bảo trì
     API->>DB: Lưu kết luận và audit
@@ -137,6 +138,8 @@ docker compose logs --tail 100 dashboard
 ```
 
 Trạng thái mong đợi: service `dashboard` là `healthy`. API kiểm tra: http://127.0.0.1:8768/api/health. Badge **Docker demo** đầu README liên kết đến kết quả build/test trên GitHub Actions.
+
+**Đã kiểm chứng ngày 08/10/2026:** image được build và chạy thành công trên runner Ubuntu của GitHub Actions; kiểm tra HTTP và dữ liệu sau restart đều đạt. Xem [log lần kiểm tra Docker](https://github.com/manhhung-25/DENS0-2026/actions/runs/37671400842). Đây là kiểm tra khả năng đóng gói/vận hành demo, không phải kiểm định độ chính xác lỗi thật.
 
 ### 2. Bài kiểm tra nhanh trên giao diện
 
