@@ -16,9 +16,7 @@ Nhấn ảnh xem trước hoặc liên kết trên để mở video; trình duy�
 
 **Ranh giới dữ liệu:** ảnh RGB và nhãn đối chiếu thuộc tập DREAM; q1–q7 và keypoint là **dự đoán AI**, không phải encoder robot. Rung, âm thanh, nhiệt, dòng điện, trễ chu kỳ, sự cố và quỹ đạo what-if là **mô phỏng**. Chưa có camera hoặc cảm biến nối với robot nhà máy.
 
-**Báo cáo đồ án:** [Thiết kế hệ thống giám sát tư thế robot và mô phỏng cảnh báo bảo trì đa cảm biến](BAO_CAO_DO_AN.md) trình bày cơ sở khoa học, kiến trúc, thông số, cơ chế sinh/phát hiện lỗi, kết quả kiểm chứng, giới hạn và hướng thí điểm.
 
-**File Word:** [BAO_CAO_DO_AN.docx](BAO_CAO_DO_AN.docx) có mục lục và số trang, bảng và hình minh họa; điền thông tin sinh viên/giảng viên trước khi nộp.
 
 ## Cấu trúc
 
