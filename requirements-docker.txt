@@ -1,0 +1,9 @@
+# CPU dashboard/research runtime. Same pins as requirements.txt; OpenCV is not
+# needed for replaying saved pose or generating research signals in this image.
+fastapi==0.141.1
+pydantic==2.13.4
+uvicorn==0.52.3
+numpy==2.5.2
+scikit-learn==1.9.1
+joblib==1.6.0
+httpx>=0.28,<0.30

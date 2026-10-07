@@ -1,0 +1,19 @@
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: denso-a2-demo:local
+    init: true
+    ports:
+      - "127.0.0.1:${DENSO_PORT:-8768}:8767"
+    environment:
+      DENSO_DEMO_DB: /data/pose_demo.sqlite3
+      DENSO_RESEARCH_DIR: /data/research
+    volumes:
+      - denso-data:/data
+    restart: unless-stopped
+    stop_grace_period: 30s
+
+volumes:
+  denso-data:

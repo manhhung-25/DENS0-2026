@@ -98,6 +98,15 @@ def home():
     return (ROOT / "index_v3.html").read_text(encoding="utf-8")
 
 
+@app.get("/api/health")
+def health():
+    required = ("index_v3.html", "pose_recording.json", "robot_original.mp4")
+    missing = [name for name in required if not (ROOT / name).is_file()]
+    if missing:
+        raise HTTPException(503, detail={"status": "missing_assets", "files": missing})
+    return {"status": "ok", "mode": "offline_idea_demo"}
+
+
 @app.get("/styles.css")
 def style():
     return FileResponse(ROOT / "styles.css", media_type="text/css")

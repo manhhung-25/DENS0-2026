@@ -1,5 +1,201 @@
 # DENSO 2026 · Giám sát pose Franka Panda và mô phỏng bảo trì
 
+[![Docker demo](https://github.com/manhhung-25/DENS0-2026/actions/workflows/docker-demo.yml/badge.svg)](https://github.com/manhhung-25/DENS0-2026/actions/workflows/docker-demo.yml)
+
+**Bài toán A2:** huấn luyện AI bảo trì dự đoán trong điều kiện thiếu dữ liệu lỗi. Dự án minh họa cách sinh dữ liệu bất thường ngoại tuyến, theo dõi robot đa nguồn, lưu bằng chứng và đo hiệu quả tăng cường dữ liệu.
+
+**Dành cho ban tổ chức:** chạy `docker compose up --build -d --wait --wait-timeout 180`, rồi mở **http://127.0.0.1:8768/**. Cần cài Docker và clone repo trước; xem [hướng dẫn Docker](#chạy-nhanh-bằng-docker-dành-cho-btc) để thực hiện đầy đủ.
+
+**Đi đến:** [Kiến trúc](#kiến-trúc-hệ-thống) · [Luồng dữ liệu](#sơ-đồ-luồng-dữ-liệu) · [Ảnh kết quả](#ảnh-chụp-kết-quả-từ-dashboard) · [Docker](#chạy-nhanh-bằng-docker-dành-cho-btc) · [Chạy Python](#chạy-dashboard) · [Hướng dẫn web](HUONG_DAN_SU_DUNG_WEB.md) · [Nghiên cứu](RESEARCH_GUIDE.md).
+
+## Hệ thống làm được gì?
+
+| Chức năng | Người dùng thao tác | Đầu ra để kiểm tra |
+|---|---|---|
+| Quan sát pose | Phát, dừng, tua video; chọn mốc ảnh và khớp góc độc lập | Overlay pose, tư thế, quỹ đạo và đạo hàm chuyển động |
+| Theo dõi đa kênh | Chọn vùng và xem biểu đồ cùng thời điểm video | Rung, nhiệt độ, âm thanh, dòng điện và các chỉ số what-if |
+| Sinh tình huống | Chọn nguyên nhân, vùng, thời gian, mức, tải, môi trường và seed | Tín hiệu giả lập có thể tái lập; xuất bộ ca |
+| Phát hiện bất thường | So quan sát với nền khỏe học từ dữ liệu tổng hợp | Điểm bất thường, khoảng cảnh báo và giả thuyết kiểm tra |
+| Lưu bằng chứng | Mở một sự kiện trong lịch sử | Pose và tín hiệu trước–trong–sau; xuất JSON/CSV; SHA-256 |
+| Phản hồi bảo trì | Ghi kết luận, người kiểm tra, nguyên nhân và việc đã làm | Nhật ký xác nhận; bắt buộc mô tả nguyên nhân khi dự đoán sai |
+| Đánh giá tăng cường | Xem A/B/C hoặc chạy benchmark | Macro-F1, PR-AUC, recall sự kiện, báo giả, độ trễ và ma trận nhầm lẫn |
+
+**Dữ liệu nào có thật?** Ảnh RGB và nhãn đối chiếu đến từ DREAM. Pose/keypoint/góc là suy luận HoRoPose đã lưu, không phải encoder thật. Sensor, lỗi, đáp ứng what-if và benchmark là **tổng hợp**. Video gồm ảnh được dựng/phát lại; hệ thống **chưa nối camera, sensor hay controller DENSO**, không gửi lệnh gây lỗi đến robot. Điểm AI không phải xác suất hỏng và giả thuyết lỗi cần kỹ thuật viên xác nhận.
+
+## Kiến trúc hệ thống
+
+```mermaid
+flowchart TB
+    subgraph Offline["Chuẩn bị pose ngoại tuyến — môi trường PyTorch riêng"]
+        RGB["Ảnh RGB DREAM + vùng robot"] --> PoseAI["HoRoPose pretrained"]
+        PoseAI --> Saved["Pose/keypoint/góc đã lưu"]
+        Saved --> Import["import_horopose.py"]
+    end
+    subgraph Demo["Demo Docker / FastAPI — CPU"]
+        Import --> Recording["pose_recording.json + video đóng gói"]
+        Recording --> Replay["Pose phát lại theo frame"]
+        Config["Kịch bản + seed + tải + môi trường"] --> Generator["engine_v3: tín hiệu what-if"]
+        Replay --> Generator
+        Generator --> Detector["Ridge nền khỏe + Isolation Forest"]
+        Detector --> Events["Điểm AI + sự kiện + bằng chứng"]
+        Events --> DB[("SQLite: snapshot và phản hồi")]
+        Events --> API["FastAPI"]
+        DB --> API
+        API --> UI["Dashboard: video, pose, biểu đồ, log"]
+        UI --> Feedback["Kết luận kỹ thuật viên"]
+        Feedback --> DB
+    end
+    subgraph Research["Nhánh nghiên cứu — trục thời gian riêng"]
+        Recipe["Điều kiện và lỗi giả định"] --> Physics["Mô phỏng giản lược 7 servo"]
+        Physics --> Dataset["Chu kỳ train / validation / test"]
+        Dataset --> Models["ExtraTrees A/B/C; Isolation Forest đối chiếu"]
+        Models --> Metrics["benchmark.json + comparison.csv"]
+    end
+    Metrics --> API
+```
+
+- **Nhánh pose:** mạng AI đã chạy ngoại tuyến. Docker demo đọc kết quả sẵn, không chạy HoRoPose mỗi frame.
+- **Nhánh giám sát:** cảm biến vùng L…/EE là giả lập; chưa có ánh xạ sensor vật lý đến J1–J7 đã hiệu chuẩn.
+- **Nhánh nghiên cứu:** tạo chu kỳ và đánh giá mô hình bằng đồng hồ riêng; không phải sensor ghi cùng video DREAM.
+- **Lưu trữ:** snapshot giữ bằng chứng của ca đã tạo; xác nhận bảo trì ghi thêm nhật ký. SHA-256 dùng để đối chiếu thay đổi, không thay thế kiểm soát truy cập.
+
+## Sơ đồ luồng dữ liệu
+
+```mermaid
+sequenceDiagram
+    participant User as Người dùng
+    participant Web as Dashboard
+    participant API as FastAPI
+    participant Engine as Bộ sinh + phát hiện
+    participant DB as SQLite
+    User->>Web: Chọn kịch bản, seed, tải, môi trường
+    Web->>API: POST /api/run
+    API->>Engine: Sinh và phân tích ca phát lại
+    Engine-->>API: Timeline, điểm AI và sự kiện
+    API->>DB: Lưu snapshot và chỉ mục sự kiện
+    API-->>Web: ID ca chạy
+    Web->>API: GET /api/run/{id}
+    API-->>Web: Dữ liệu ca đã lưu
+    User->>Web: Phát / tua video tới thời điểm t
+    Web->>Web: i = round(t × fps); cập nhật mọi widget từ frame i
+    User->>Web: Mở sự kiện trong lịch sử
+    Web->>API: GET /api/history/{event_id}
+    API->>DB: Đọc dữ liệu trước–trong–sau
+    DB-->>Web: Qua API: pose, sensor, score và nhật ký
+    User->>Web: Xác nhận và mô tả việc kiểm tra
+    Web->>API: POST phản hồi bảo trì
+    API->>DB: Lưu kết luận và audit
+```
+
+**Hai loại thời gian:** `t` là giây trong video; `saved_at_utc` là lúc lưu hồ sơ. API phân tích toàn bộ ca ghi sẵn, sau đó trình duyệt phát lại bằng một chỉ số frame chung. Bước frame 33,33 ms của video 30 fps **không phải** độ trễ suy luận AI đã đo. Benchmark có thời gian chu kỳ riêng.
+
+## Ảnh chụp kết quả từ dashboard
+
+### Pose robot và phòng mô phỏng
+
+| Pose trên ảnh robot | Cấu hình tình huống giả lập |
+|---|---|
+| ![Pose HoRoPose trên ảnh RGB Franka Panda](docs/screenshots/pose.png) | ![Chọn nguyên nhân, vùng, mức và thời gian trong phòng mô phỏng](docs/screenshots/simulation.png) |
+
+Ảnh chụp từ dashboard của dự án: điểm cyan là dự đoán pose; quỹ đạo what-if và sensor được gắn nhãn giả lập. Kịch bản được tạo trong phần mềm, không gây hỏng robot thật.
+
+### Bằng chứng trước–trong–sau một cảnh báo
+
+![Log sự kiện với rung, điểm AI và pose theo frame](docs/screenshots/event-history.png)
+
+Đường liền là tín hiệu kịch bản; đường đứt là nền tổng hợp. Vùng tô thể hiện khoảng sự kiện; vạch nâu đứt là thời điểm xác nhận; vạch đen là frame đang xem. Người dùng chọn frame để xem pose, sensor và xuất JSON/CSV của hồ sơ đã lưu.
+
+### So sánh AI trước và sau tăng cường dữ liệu
+
+![Biểu đồ Macro-F1 và PR-AUC của ba phương án A/B/C](docs/screenshots/benchmark.png)
+
+Kết quả benchmark nội bộ qua seed 19/41/73 trên cùng 174 ca kiểm thử tổng hợp: Macro-F1 A ≈ 0,167; B ≈ 0,169; C ≈ 0,279. Mức tăng C−A ≈ **11,17 điểm phần trăm**. Đây không phải độ chính xác tại nhà máy; C còn mức báo giả quy đổi khoảng 427 đợt/giờ trên các đoạn bình thường ngắn. Xem đầy đủ giới hạn, số liệu và cách tái lập trong [RESEARCH_GUIDE.md](RESEARCH_GUIDE.md).
+
+## Chạy nhanh bằng Docker dành cho BTC
+
+### 1. Chuẩn bị
+
+- Cài [Docker Desktop](https://docs.docker.com/get-started/get-docker/) trên Windows/macOS hoặc Docker Engine kèm Compose trên Linux; bật **Linux containers**.
+- Cài Git. Gói Docker dùng CPU, không cần GPU, Python trên máy host hoặc checkpoint HoRoPose.
+- Lần build đầu cần mạng để tải base image và thư viện. Khi image đã có, demo phát lại chạy không cần gọi API AI bên ngoài.
+
+Chạy tại thư mục gốc repo, **không phải `horopose_upstream/`**:
+
+```powershell
+git clone https://github.com/manhhung-25/DENS0-2026.git
+Set-Location DENS0-2026
+docker compose up --build -d --wait --wait-timeout 180
+```
+
+Trên Linux/macOS, dùng `cd DENS0-2026` thay cho `Set-Location`. Nếu repo đã có, vào thư mục gốc và chạy lệnh Compose cuối. Docker chỉ đóng gói video/pose sẵn, mã dashboard và pipeline nghiên cứu; không cần lấy Git LFS hoặc submodule để chạy chế độ này.
+
+**Mở http://127.0.0.1:8768/**. Docker dùng cổng host **8768** để không trùng bản chạy Python tại **8767**; trong container ứng dụng nghe cổng 8767.
+
+```powershell
+docker compose ps
+docker compose logs --tail 100 dashboard
+```
+
+Trạng thái mong đợi: service `dashboard` là `healthy`. API kiểm tra: http://127.0.0.1:8768/api/health. Badge **Docker demo** đầu README liên kết đến kết quả build/test trên GitHub Actions.
+
+### 2. Bài kiểm tra nhanh trên giao diện
+
+1. Phát video, dừng hoặc tua; kiểm tra pose và giá trị các biểu đồ cùng thay đổi theo frame.
+2. Chọn riêng vùng ảnh L4 và góc J4; đây là hai lựa chọn độc lập, không phải ánh xạ sensor vật lý.
+3. Trong phòng mô phỏng, chọn **Về kịch bản mẫu**; xem rung/âm thanh khoảng 5–8 s và tình huống tư thế khoảng 10–13 s.
+4. Chọn cảnh báo, xem thời điểm và giả thuyết; mở **Lịch sử pose và cảm biến** để đối chiếu các frame trước–trong–sau.
+5. Thử xuất JSON/CSV. Nếu ghi xác nhận demo, dùng tên `BTC demo` và ghi rõ chưa thực hiện bảo trì robot thật.
+6. Mở **Đánh giá AI** để xem kết quả A/B/C có sẵn. Danh sách ca nghiên cứu chi tiết và tải dataset xuất hiện sau khi tạo lại benchmark trong container.
+
+### 3. Tự kiểm tra API và tái lập benchmark
+
+```powershell
+docker compose exec -T dashboard python scripts/smoke_test_web.py --state-file /data/smoke_check.json
+docker compose restart dashboard
+docker compose up -d --wait --wait-timeout 180
+docker compose exec -T dashboard python scripts/smoke_test_web.py --state-file /data/smoke_check.json --verify-persistence
+```
+
+Bài smoke test tạo một ca và phản hồi có tên **Docker smoke test** trong DB demo; kiểm tra video, 500 frame, 7 kênh vùng, log, xuất file và việc giữ nguyên bằng chứng sau restart.
+
+Tái lập đầy đủ bộ dữ liệu và mô hình nghiên cứu, chạy một lần và chờ lệnh kết thúc:
+
+```powershell
+docker compose exec -T dashboard python -m research_pipeline benchmark --seeds 19,41,73 --scarce 3 --extra 12 --output /data/research
+```
+
+Sau đó tải lại mục **Đánh giá AI**. Có thể dùng nút **Chạy benchmark 3 seed** thay cho CLI; không chạy cả hai đồng thời. Kết quả phụ thuộc môi trường thư viện/nền tảng và chỉ có giá trị trong mô phỏng.
+
+### 4. Dữ liệu lưu và cách dừng
+
+| Trong container | Nội dung | Cách giữ dữ liệu |
+|---|---|---|
+| `/app/pose_focus_demo/` | Video, pose và giao diện đóng gói | Nằm trong image |
+| `/data/pose_demo.sqlite3` | Ca chạy, hồ sơ sự kiện và phản hồi bảo trì | Named volume `denso-data` |
+| `/data/research/` | Kết quả, dataset và trọng số benchmark khi tái lập | Cùng named volume |
+
+Volume mới được khởi tạo với bảng benchmark có sẵn trong image. Các lần khởi động sau dùng dữ liệu đang lưu trong volume; build lại image không tự ghi đè kết quả nghiên cứu đã có.
+
+```powershell
+docker compose down
+```
+
+Lệnh trên dừng container và giữ volume. Chạy lại bằng `docker compose up -d --wait --wait-timeout 180`. Để sao lưu khi app đã dừng, dùng `docker compose stop dashboard`, rồi `docker compose cp dashboard:/data ./docker-data-backup`; sau đó khởi động lại bằng lệnh `up`.
+
+### 5. Xử lý lỗi thường gặp
+
+| Hiện tượng | Cách xử lý |
+|---|---|
+| Không tìm thấy `docker` / Compose | Cài Docker, mở terminal mới, kiểm tra `docker version` và `docker compose version` |
+| Không kết nối Docker daemon | Mở Docker Desktop hoặc khởi động Docker Engine; kiểm tra chế độ Linux containers |
+| Cổng 8768 đã được dùng | PowerShell: `$env:DENSO_PORT="8770"`, rồi chạy Compose; mở `http://127.0.0.1:8770/`. Bash: `DENSO_PORT=8770 docker compose up --build -d --wait --wait-timeout 180` |
+| Build chưa tải được thư viện | Kiểm tra mạng/proxy và log build; không bỏ qua lỗi cài dependency |
+| Service chưa healthy | Xem `docker compose logs --tail 100 dashboard`; kiểm tra `/api/health` |
+| Chưa có ca nghiên cứu để chọn | Chạy benchmark trong container; summary có sẵn không chứa toàn bộ NPZ/trọng số |
+| Vẫn thấy benchmark cũ sau build | Volume giữ kết quả trước đó; chạy lại benchmark để cập nhật |
+
+Docker dùng [Compose](https://docs.docker.com/compose/gettingstarted/) để khởi động và lưu volume; [.dockerignore](https://docs.docker.com/build/concepts/context/) loại môi trường cục bộ, checkpoint lớn và tài liệu khỏi build context.
+
 ## Video thuyết minh ý tưởng và giới thiệu hệ thống
 
 [![Xem video thuyết minh ý tưởng DENSO A2](docs/media/thuyet_minh_y_tuong_preview.jpg)](https://github.com/manhhung-25/DENS0-2026/releases/download/demo-2026-10-08/thuyet_minh_y_tuong.mp4)
@@ -30,6 +226,12 @@ Nhấn ảnh xem trước hoặc liên kết trên để mở video; trình duy�
 | `panda_repro/artifacts/` | NPZ dự đoán, CSV thời gian, mô hình lỗi, video, metrics và SQLite mẫu |
 | `pose_focus_demo/import_horopose.py` | Kiểm tra hash, ánh xạ 120 scene ID sang 500 frame, ghi `pose_recording.json` |
 | `pose_focus_demo/` | FastAPI, dashboard, biểu đồ, phòng mô phỏng, cảnh báo và phản hồi bảo trì |
+| `research_pipeline/` | Bộ sinh 7 servo, đặc trưng cửa sổ, huấn luyện và benchmark A/B/C |
+| `research_artifacts/benchmark.json`, `comparison.csv` | Kết quả tổng hợp nội bộ đã đóng gói |
+| `Dockerfile`, `compose.yaml`, `requirements-docker.txt` | Gói chạy CPU cho BTC; lưu dữ liệu qua volume |
+| `scripts/smoke_test_web.py` | Kiểm tra quy trình HTTP và dữ liệu sau restart |
+| `.github/workflows/docker-demo.yml` | Build và kiểm tra container trên GitHub Actions |
+| `docs/screenshots/` | Ảnh kết quả thật chụp từ dashboard demo |
 
 Thư mục `horopose_upstream/` là Git submodule tham khảo của công trình gốc; `panda_repro/vendor/holistic_pose/` giúp gói tái lập chạy ngay cả khi chưa lấy submodule.
 
