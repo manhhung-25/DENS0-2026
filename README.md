@@ -77,7 +77,7 @@ sequenceDiagram
     Web->>API: GET /api/run/{id}
     API-->>Web: Dữ liệu ca đã lưu
     User->>Web: Phát / tua video tới thời điểm t
-    Web->>Web: i = round(t × fps); cập nhật mọi widget từ frame i
+    Web->>Web: i = round(t × fps)<br/>Cập nhật mọi widget từ frame i
     User->>Web: Mở sự kiện trong lịch sử
     Web->>API: GET /api/history/{event_id}
     API->>DB: Đọc dữ liệu trước–trong–sau
