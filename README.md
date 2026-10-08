@@ -201,11 +201,11 @@ Docker dùng [Compose](https://docs.docker.com/compose/gettingstarted/) để kh
 
 ## Video thuyết minh ý tưởng và giới thiệu hệ thống
 
-[![Xem video thuyết minh ý tưởng DENSO A2](docs/media/thuyet_minh_y_tuong_preview.jpg)](https://github.com/manhhung-25/DENS0-2026/releases/download/demo-2026-10-08/thuyet_minh_y_tuong.mp4)
+[![Xem video thuyết minh ý tưởng DENSO A2](docs/media/thuyet_minh_y_tuong_v2_preview.jpg)](https://github.com/manhhung-25/DENS0-2026/releases/download/demo-2026-10-08/thuyet_minh_y_tuong_v2.mp4)
 
-**[Xem hoặc tải video thuyết minh đầy đủ](https://github.com/manhhung-25/DENS0-2026/releases/download/demo-2026-10-08/thuyet_minh_y_tuong.mp4)** · Thời lượng **17 phút 06 giây** · MP4, H.264/AAC, 1280 × 720 · Khoảng **754 MiB**.
+**[Xem hoặc tải video thuyết minh đầy đủ](https://github.com/manhhung-25/DENS0-2026/releases/download/demo-2026-10-08/thuyet_minh_y_tuong_v2.mp4)** · Thời lượng **6 phút 13 giây** · MP4, 1280 × 720 · Khoảng **274 MiB**.
 
-Nhấn ảnh xem trước hoặc liên kết trên để mở video; trình duyệt có thể tải file về, khi đó mở bằng trình phát video trên máy. Bản video gốc được lưu trong [GitHub Releases](https://github.com/manhhung-25/DENS0-2026/releases/tag/demo-2026-10-08), không nằm trong lịch sử Git của mã nguồn. Thông tin dung lượng và SHA-256 để đối chiếu nằm trong [manifest video](docs/media/thuyet_minh_y_tuong.json).
+Nhấn ảnh xem trước hoặc liên kết trên để mở video; trình duyệt có thể tải file về, khi đó mở bằng trình phát video trên máy. Bản video gốc được lưu trong [GitHub Releases](https://github.com/manhhung-25/DENS0-2026/releases/tag/demo-2026-10-08), không nằm trong lịch sử Git của mã nguồn. Thông tin dung lượng và SHA-256 để đối chiếu nằm trong [manifest video](docs/media/thuyet_minh_y_tuong_v2.json).
 
 Đây là phần thuyết minh của **demo vòng ý tưởng**: pose được suy luận từ ảnh robot thật; cảm biến, tình huống lỗi và benchmark trong hệ thống là mô phỏng, chưa phải kết quả triển khai tại nhà máy DENSO.
 
